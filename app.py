@@ -64,8 +64,8 @@ def train_models():
 
     # TF-IDF
     tfidf = TfidfVectorizer(
-        max_features=50000, stop_words='english',
-        ngram_range=(1, 3), sublinear_tf=True, min_df=3, max_df=0.95
+        max_features=10000, stop_words='english',
+        ngram_range=(1, 2), sublinear_tf=True, min_df=3, max_df=0.95
     )
     X_train_tfidf = tfidf.fit_transform(X_train)
     X_test_tfidf = tfidf.transform(X_test)
