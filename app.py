@@ -192,6 +192,9 @@ def train_models():
 
 @app.route('/api/predict', methods=['POST'])
 def predict():
+    if not model_ready:
+        return jsonify({'error': 'Model is still loading, please wait 30 seconds...'}), 503
+
     data = request.json
     review = data.get('review', '')
     if not review.strip():
@@ -224,7 +227,23 @@ def health():
     return jsonify({'status': 'ok', 'models_loaded': len(models_data) > 0})
 
 
-train_models()
+import threading
+
+model_ready = False
+
+def train_in_background():
+    global model_ready
+    train_models()
+    model_ready = True
+
+# Start training in background so server binds port immediately
+threading.Thread(target=train_in_background, daemon=True).start()
+
+
+@app.route('/api/status', methods=['GET'])
+def status():
+    return jsonify({'ready': model_ready})
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
